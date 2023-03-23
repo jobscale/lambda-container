@@ -35,6 +35,7 @@ WORKDIR ${FUNCTION_DIR}
 
 # Copy in the built dependencies
 COPY --from=build-image --chown=node:staff ${FUNCTION_DIR} .
+COPY --chown=node:staff index.js index.js
 
 ENTRYPOINT ["/usr/local/bin/npx", "aws-lambda-ric"]
 CMD ["index.handler"]
