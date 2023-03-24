@@ -1,41 +1,40 @@
-# Define custom function directory
 ARG FUNCTION_DIR="/task"
 
-FROM node:lts-buster-slim as build-image
+FROM debian:bullseye as build-image
+SHELL ["bash", "-c"]
 
-# Include global arg in this stage of the build
-ARG FUNCTION_DIR
-
-# Install aws-lambda-cpp build dependencies
 RUN apt-get update && \
     apt-get install -y \
-    g++ make cmake autoconf libtool python3-pip unzip libcurl4-openssl-dev
+    g++ make cmake unzip libcurl4-openssl-dev \
+    autoconf libtool python3-pip \
+    git curl
 
-RUN npm i -g npm@latest
-
-RUN mkdir -p ${FUNCTION_DIR} && chown node:staff ${FUNCTION_DIR}
-WORKDIR ${FUNCTION_DIR}
-USER node
-
-# If the dependency is not in package.json uncomment the following line
-# RUN npm install aws-lambda-ric
-
-COPY --chown=node:staff package.json package.json
-RUN npm i aws-lambda-ric
-RUN npm ci
-
-# Grab a fresh slim copy of the image to reduce the final size
-FROM node:lts-buster-slim
-
-# Include global arg in this stage of the build
 ARG FUNCTION_DIR
-
-# Set working directory to function root directory
 WORKDIR ${FUNCTION_DIR}
 
-# Copy in the built dependencies
-COPY --from=build-image --chown=node:staff ${FUNCTION_DIR} .
-COPY --chown=node:staff index.js index.js
+COPY setup.sh setup.sh
+RUN ./setup.sh
 
-ENTRYPOINT ["/usr/local/bin/npx", "aws-lambda-ric"]
+COPY nvm.sh /etc/profile.d/nvm.sh
+COPY package.json package.json
+RUN . /etc/profile.d/nvm.sh && npm i aws-lambda-ric
+RUN . /etc/profile.d/nvm.sh && npm i --production
+
+FROM debian:bullseye-slim
+SHELL ["bash", "-c"]
+
+RUN apt-get update && \
+    apt-get install -y \
+    git curl
+
+ARG FUNCTION_DIR
+WORKDIR ${FUNCTION_DIR}
+
+COPY --from=build-image /usr/local/nvm /usr/local/nvm
+COPY --from=build-image ${FUNCTION_DIR} .
+COPY nvm.sh /etc/profile.d/nvm.sh
+COPY entrypoint.sh /bin/entrypoint.sh
+COPY index.js index.js
+
+ENTRYPOINT ["/bin/entrypoint.sh"]
 CMD ["index.handler"]
