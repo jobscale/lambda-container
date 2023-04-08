@@ -1,6 +1,6 @@
-ARG FUNCTION_DIR="/task"
+ARG FUNCTION_DIR="/var/task"
 
-FROM debian:bullseye as build-image
+FROM node:16.14.2-bullseye as build-image
 SHELL ["bash", "-c"]
 
 RUN apt-get update && \
@@ -12,15 +12,11 @@ RUN apt-get update && \
 ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
 
-COPY setup.sh setup.sh
-RUN ./setup.sh
-
-COPY nvm.sh /etc/profile.d/nvm.sh
 COPY package.json package.json
-RUN . /etc/profile.d/nvm.sh && npm i aws-lambda-ric
-RUN . /etc/profile.d/nvm.sh && npm i --production
+RUN npm i aws-lambda-ric
+RUN npm i --production
 
-FROM debian:bullseye-slim
+FROM node:16.14.2-bullseye-slim
 SHELL ["bash", "-c"]
 
 RUN apt-get update && \
@@ -30,11 +26,8 @@ RUN apt-get update && \
 ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
 
-COPY --from=build-image /usr/local/nvm /usr/local/nvm
 COPY --from=build-image ${FUNCTION_DIR} .
-COPY nvm.sh /etc/profile.d/nvm.sh
-COPY entrypoint.sh /bin/entrypoint.sh
 COPY index.js index.js
 
-ENTRYPOINT ["/bin/entrypoint.sh"]
+ENTRYPOINT ["npx", "aws-lambda-ric"]
 CMD ["index.handler"]
