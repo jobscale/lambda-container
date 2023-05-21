@@ -1,7 +1,24 @@
+const fs = require('fs');
+
 const logger = console;
 
-const main = async event => {
-  return { message: 'ok' };
+const parseLSB = async () => {
+  const buffer = fs.readFileSync('/etc/os-release');
+  const release = Buffer.from(buffer).toString().replace(/"/g, '');
+  const lsb = {};
+  release.split('\n').forEach(entry => {
+    const [key, value] = entry.split('=');
+    lsb[key] = value;
+  });
+  return lsb;
+};
+
+const main = async () => {
+  const lsb = await parseLSB();
+  return {
+    lsb,
+    env: process.env,
+  };
 };
 
 exports.handler = async event => {
