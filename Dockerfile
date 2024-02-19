@@ -1,6 +1,6 @@
 ARG FUNCTION_DIR="/var/task"
 
-FROM node:18-bullseye as build-image
+FROM node:18-bookworm as build-image
 SHELL ["bash", "-c"]
 
 ENV DEBIAN_FRONTEND noninteractive
