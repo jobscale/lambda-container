@@ -19,7 +19,7 @@ SHELL ["bash", "-c"]
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y \
     git curl
-RUN rm -fr /var/lib/apt/lists/*
+RUN apt-get clean && rm -fr /var/lib/apt/lists/*
 
 ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
