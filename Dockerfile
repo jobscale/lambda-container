@@ -4,7 +4,7 @@ FROM node:20-bookworm as build-image
 SHELL ["bash", "-c"]
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ make cmake unzip libcurl4-openssl-dev
 
 ARG FUNCTION_DIR
@@ -17,9 +17,10 @@ FROM node:20-bookworm-slim
 SHELL ["bash", "-c"]
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl \
- && apt-get autoremove -y && apt-get clean && rm -fr /var/lib/apt/lists/*
+ && apt-get autoremove -y \
+ && apt-get clean && rm -fr /var/lib/apt/lists/*
 
 ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
