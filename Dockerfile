@@ -1,6 +1,6 @@
 ARG FUNCTION_DIR="/var/task"
 
-FROM node:20-tixie as build-image
+FROM node:20-trixie as build-image
 SHELL ["bash", "-c"]
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,7 +13,7 @@ WORKDIR ${FUNCTION_DIR}
 COPY package.json package.json
 RUN npm i aws-lambda-ric && npm i --omit=dev
 
-FROM node:20-tixie-slim
+FROM node:20-trixie-slim
 SHELL ["bash", "-c"]
 
 ENV DEBIAN_FRONTEND=noninteractive
