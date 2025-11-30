@@ -1,11 +1,11 @@
 ARG FUNCTION_DIR="/var/task"
 
-FROM node:20-trixie as build-image
+FROM node:20-trixie AS build-image
 SHELL ["bash", "-c"]
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    g++ make cmake unzip libcurl4-openssl-dev
+    g++ make cmake unzip libcurl4-openssl-dev python3-setuptools
 
 ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
