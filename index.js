@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 
 const logger = console;
 
@@ -21,11 +21,12 @@ const main = async () => {
   };
 };
 
-exports.handler = async event => {
+export const handler = async event => {
   logger.info('EVENT', JSON.stringify(event));
 
   return main(event)
   .then(res => {
+    logger.info({ res });
     return {
       statusCode: 200,
       headers: { 'Content-Length': 'application/json' },
